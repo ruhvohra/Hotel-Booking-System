@@ -35,5 +35,12 @@ app.use('/api/webhooks', webhookRoutes);
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', message: 'Hotel Booking API Running' }));
 
+app.get('/', (req,res)=>{
+  res.send({
+    activeStatus: true,
+    error: false,
+  })
+})
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
