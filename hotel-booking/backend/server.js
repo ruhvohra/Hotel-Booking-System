@@ -15,7 +15,7 @@ const app = express();
 app.use('/api/webhooks', express.raw({ type: 'application/json' }));
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'https://hotel-booking-system-a327.vercel.app',
   credentials: true
 }));
 
