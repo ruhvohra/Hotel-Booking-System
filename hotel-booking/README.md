@@ -79,14 +79,11 @@ VITE_API_URL=http://localhost:5000/api
 
 ### 3. Create Admin User
 
+Set `ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` (at least 12 characters) in
+`backend/.env`, then run this from the repository root:
 ```bash
-cd scripts
-node createAdmin.js
+node hotel-booking/scripts/createAdmin.js
 ```
-
-This creates:
-- **Email:** admin@luxestay.com  
-- **Password:** admin123
 
 ### 4. Run the Application
 
@@ -239,23 +236,35 @@ The UI uses a luxury hotel aesthetic:
 
 ## 🚢 Deployment
 
-### MongoDB Atlas
-Replace `MONGODB_URI` with your Atlas connection string.
+This project can be deployed as three services: MongoDB Atlas (database), Render
+(API), and Vercel (frontend). The repository includes a Render Blueprint in
+`render.yaml`.
 
-### Backend (Railway / Render / Heroku)
-```bash
-cd backend
-npm start
-```
+1. **Create the database.** Create a MongoDB Atlas cluster and database user.
+   Copy the Atlas connection string and replace its password placeholder. Allow
+   network access from Render; use Render's outbound IP allowlist when available.
+   If you must allow `0.0.0.0/0`, use a strong database password and restrict the
+   database user's permissions.
+2. **Deploy the API.** In Render, create a Blueprint from this repository and
+   select `render.yaml` at the repository root. Set `MONGODB_URI` to the Atlas
+   connection string. Set `CLIENT_URL` temporarily to `http://localhost:5173`;
+   replace it with the Vercel site's origin after step 3 (no trailing slash).
+   Render generates `JWT_SECRET`.
+3. **Deploy the frontend.** Import the same repository into Vercel and set the
+   project root directory to `hotel-booking/frontend`. Set the environment
+   variable `VITE_API_URL` to the Render API URL followed by `/api`, for example
+   `https://your-api.onrender.com/api`. Add `VITE_CLERK_PUBLISHABLE_KEY` only if
+   using Clerk. Deploy, then copy the Vercel site's origin (no trailing slash)
+   into Render's `CLIENT_URL` and redeploy the API.
+4. **Verify.** Open `https://your-api.onrender.com/api/health` and confirm it
+   returns a JSON status of `OK`; then test hotel listing, registration, login,
+   and booking from the Vercel site.
 
-### Frontend (Vercel / Netlify)
-```bash
-cd frontend
-npm run build
-# Deploy the dist/ folder
-```
-
-Update `VITE_API_URL` to your deployed backend URL.
+Do not commit `.env` files or put secrets in `VITE_*` variables; Vite embeds
+those values in public browser code. To create an admin account, set
+`ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` of at least 12 characters in your
+local `backend/.env` alongside the Atlas `MONGODB_URI`, then run
+`node hotel-booking/scripts/createAdmin.js` from the repository root.
 
 ---
 
