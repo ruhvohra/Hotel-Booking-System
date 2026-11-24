@@ -17,8 +17,6 @@ const bcrypt = require(
 
 const MONGO_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/hotel_booking";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Define schema inline to avoid import issues
 const userSchema = new mongoose.Schema(
@@ -38,34 +36,31 @@ const User = mongoose.model("User", userSchema);
 
 async function createAdmin() {
   try {
-    if (!ADMIN_EMAIL || !ADMIN_PASSWORD || ADMIN_PASSWORD.length < 12) {
-      throw new Error(
-        "Set ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters in backend/.env.",
-      );
-    }
-
     console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
     console.log("✅ Connected to MongoDB\n");
 
-    const existing = await User.findOne({ email: ADMIN_EMAIL });
+    const existing = await User.findOne({ email: "admin@luxestay.com" });
 
     if (existing) {
       existing.role = "admin";
       await existing.save();
       console.log("✅ Existing user updated to admin role.");
     } else {
-      const hashed = await bcrypt.hash(ADMIN_PASSWORD, 12);
+      const hashed = await bcrypt.hash("admin123", 12);
       await User.create({
         name: "Admin User",
-        email: ADMIN_EMAIL,
+        email: "admin@luxestay.com",
         password: hashed,
         role: "admin",
       });
       console.log("✅ Admin user created!");
     }
 
-    console.log(`\n📋 Admin account ready for ${ADMIN_EMAIL}.\n`);
+    console.log("\n📋 Admin Credentials:");
+    console.log("   Email   : admin@luxestay.com");
+    console.log("   Password: admin123");
+    console.log("\n⚠️  Change the password after first login!\n");
 
     await mongoose.disconnect();
     process.exit(0);
